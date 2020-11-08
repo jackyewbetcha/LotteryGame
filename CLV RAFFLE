@@ -1,0 +1,71 @@
+pragma solidity >=0.4.22 <0.7.0;
+
+// Raffle game, template based on gambling Ethereum, to be forked with CLV //
+
+contract Raffle {
+    
+    mapping (address => uint256) public winnings;
+    address[] public tickets;
+    
+    string public name = "Raffle";
+    string public symbol = "RAF";
+    uint256 public maxTickets = 100;
+    uint256 public remainingTickets = 0;
+    uint public ticketCount = 0;
+    uint256 public randomNum = 0;
+    address public latestWinner;
+    
+    function Raffle(string tokenName, string tokenSymbol, uint256 maximumTickets, uint256 maxTickets) {
+        
+        name = tokenName;
+        symbol = tokenSymbol;
+        maxTickets = maximumTickets;
+        remainingTickets = maxTickets;
+        
+    }
+    
+    function Buy() public payable {
+        
+        require(msg.value = 1000000000000000000);
+        
+        uint256 val = (msg.value / 1000000000000000000);
+        
+        // change 1000000000000000000 (one Ether) to 1 CLV //
+        
+        require(remainingTickets - val < remainingTickets);
+        remainingTickets -= val; 
+        
+        tickets.push(msg.sender);
+        ticketCount++;
+    }
+    
+    function Withdrawl() public {
+        
+        require(winner[msg.sender] > 0);
+        
+        uint256 amountToWithdrawl = winnings[msg.sender];
+        
+        winnings[msg.sender] = 0;
+        
+        amountToWithdrawl *= 1000000000000000000;
+        
+        //change 1000000000000000000 (one Ether) to 1 clv // 
+        
+        msg.sender.transfer(amountToWithdrawl);
+    }
+    
+    function chooseWinner() public {
+        
+        require(ticketCount > 0);
+        
+        randomNum = uint(block.blockhash(block.number-1)) % ticketCount;
+        
+        latestWinner = tickets[randomNum];
+        
+        winnings[latestWinner] = ticketCount;
+        ticketCount = 0;
+        remainingTickets = maxTickets;
+        
+        delete tickets;
+    }
+}
